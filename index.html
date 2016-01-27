@@ -1,0 +1,204 @@
+<!doctype html>
+ 
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, user-scalable=no" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    
+    <title>Firebase</title>
+    <meta name="description" content="思いたったらすぐ開発. プログラミングに革命を..." />
+    
+    <script src="https://cdn.firebase.com/js/client/2.3.2/firebase.js"></script>
+    
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/marked/0.3.5/marked.js'></script>
+    <script src='http://cdnjs.cloudflare.com/ajax/libs/jade/1.11.0/jade.js'></script>
+
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/riot/2.3.13/riot+compiler.js'></script>
+
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/jquery/2.2.0/jquery.js'></script>
+    <link rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/materialize/0.97.5/css/materialize.css' />
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/materialize/0.97.5/js/materialize.js'></script>
+
+  </head>
+  <body>
+    <app></app>
+    <app2></app2>
+  </body>
+</html>
+
+<script type="riot/tag" template='jade'>
+app
+  header
+  content
+  footer
+  
+  script.
+    this.on('mount', function() {
+      riot.route.start();
+
+      riot.route(function(path, query) {
+        var tag = path[0];
+
+        riot.mount('content', tag);
+      });
+
+      var hash = location.hash.replace('#', '');
+      if (hash) {
+        riot.route.exec();
+      }
+      // riot.route(hash || 'home');
+    });
+
+    this.msg = 'Hello, Riot.js';
+
+header
+  nav.light-blue.lighten-1
+    div.row
+      div.col.s12
+        div.brand-logo
+          a オレのブクマ
+        ul.right(if='{!isLogin()}')
+          li
+            a(onclick='{login}') Login
+          li
+            a(onclick='{signup}') Signup
+        ul.right(if='{isLogin()}')
+          li
+            a(onclick='{logout}') Logout
+  script.
+    this.login = function() {
+      riot.route('login');
+    };
+    this.signup = function() {
+      riot.route('signup');
+    };
+    this.logout = function() {
+      window.authData = null;
+      ref.unauth();
+      riot.route('login');
+    };
+
+    this.isLogin = function() {
+      return !!window.authData;
+    };
+
+home
+  div.container
+    h2 {user.name} だよー
+    p {user.description}
+    button.btn(onclick='{hoge}') hoge
+  script.
+    this.hoge = function() {
+      ref.child('links').push({
+        url: 'http://phiary.me',
+        uid: authData.uid,
+        timestamp: Date.now(),
+      });
+    };
+
+    // ref.child('links').orderByC
+
+    // ref.
+
+    // ref.orderByChild("height").equalTo(25)
+
+signup
+  div.container
+    form(onsubmit='{signup}')
+      h2 Signup
+      div
+        input(name='email', type='text', placeholder='email')
+      div
+        input(name='password', type='password', placeholder='password')
+      div.right
+        button.btn signup
+  script.
+    this.signup = function() {
+      ref.createUser({
+        email: this.email.value,
+        password: this.password.value,
+      }, function(error, authData) {
+        if (error) {
+          switch (error.code) {
+            case 'EMAIL_TOKEN':
+              console.log("The new user account cannot be created because the email is already in use.");
+              break;
+            case 'INVALID_EMAIL' :
+              console.log("The specified email is not a valid email.");
+              break;
+            default :
+              console.log("Error creating user:", error);
+          }
+        }
+        else {
+          console.log("Successfully created user account with uid:", authData.uid);
+        }
+      });
+    };
+// login
+login
+  div.container
+    form(onsubmit='{login}')
+      h2 Login
+      div
+        input(name='email', type='text', placeholder='email')
+      div
+        input(name='password', type='password', placeholder='password')
+      div.right
+        button.btn login
+  script.
+    this.login = function() {
+      ref.authWithPassword({
+        email: this.email.value,
+        password: this.password.value,
+      }, function(error, authData) {
+        window.authData = authData;
+        riot.route('home');
+      });
+    };
+
+</script>
+
+<script>
+riot.route.parser(function(path) {
+  var raw = path.split('?');
+  var hashes = raw[0].split('/');
+  var qs = raw[1];
+  var params = {};
+
+  if (qs) {
+    qs.split('&').forEach(function(v) {
+      var c = v.split('=');
+      params[c[0]] = c[1];
+    });
+  }
+
+  return [hashes, params];
+});
+
+var ref = new Firebase("https://orenobukuma.firebaseio.com/");
+ref.onAuth(function(authData) {
+  if (authData) {
+    console.log("User " + authData.uid + " is logged in with " + authData.provider);
+    window.authData = authData;
+
+    ref.child('users').child(authData.uid).on('value', function(snapshot) {
+      window.user = snapshot.val();
+      var tags = riot.mount('*');
+    });
+
+    // create user
+    // ref.child('users').child(authData.uid).set({
+    //   name: 'phi',
+    //   description: 'Hello, world!',
+    //   url: 'http://phairy.me',
+    // });
+  }
+  else {
+    console.log("User is logged out");
+    var tags = riot.mount('*');
+  }
+});
+
+</script>
