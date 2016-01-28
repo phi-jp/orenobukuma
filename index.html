@@ -23,9 +23,51 @@
   </head>
   <body>
     <app></app>
-    <app2></app2>
   </body>
 </html>
+
+<script>
+
+// 存在チェック
+if (String.prototype.format == undefined) {  
+  /**
+   * フォーマット関数
+   */
+  String.prototype.format = function(arg)
+  {
+    // 置換ファンク
+    var rep_fn = undefined;
+    // オブジェクトの場合
+    if (typeof arg == "object") {
+      rep_fn = function(m, k) { return arg[k]; }
+    }
+    // 複数引数だった場合
+    else {
+      var args = arguments;
+      rep_fn = function(m, k) { return args[ parseInt(k) ]; }
+    }
+    return this.replace( /\{(\w+)\}/g, rep_fn );
+  }
+}
+
+var getTitle = function(url, callback) {
+  var END_POINT = 'http://query.yahooapis.com/v1/public/yql';
+  
+  $.ajax({
+    type: 'GET',
+    url: END_POINT,
+    dataType: 'jsonp',
+    data: {
+      q: 'select * from html where url="{0}" and xpath = "//title | //meta[@name=\'description\']"'.format(url),
+      format: 'json'
+    },
+    success: function(data) {
+      callback && callback(data.query.results);
+    },
+  });
+};
+
+</script>
 
 <script type="riot/tag" template='jade'>
 app
@@ -40,7 +82,20 @@ app
       riot.route(function(path, query) {
         var tag = path[0];
 
-        riot.mount('content', tag);
+        if (!tag) {
+          tag = 'home';
+        }
+
+        var pages = ['login', 'signup', 'users', 'home', 'links'];
+        if (pages.indexOf(tag) === -1) {
+          console.log(tag, 'to', 'user');
+          tag = 'user';
+        }
+
+        riot.mount('content', tag, {
+          path: path,
+          query: query,
+        });
       });
 
       var hash = location.hash.replace('#', '');
@@ -57,13 +112,17 @@ header
     div.row
       div.col.s12
         div.brand-logo
-          a オレのブクマ
+          a(href='#home') オレのブクマ
         ul.right(if='{!isLogin()}')
           li
             a(onclick='{login}') Login
           li
             a(onclick='{signup}') Signup
         ul.right(if='{isLogin()}')
+          li
+            a(href='#users') Users
+          li
+            a(href='#links') Links
           li
             a(onclick='{logout}') Logout
   script.
@@ -83,25 +142,143 @@ header
       return !!window.authData;
     };
 
+// # link
+item
+  div.row
+    div.col.s12
+      a(href='{url}') {title} 
+      a.secondary-content(href='', onclick='{del}')
+        i.material-icons del
+  div.row
+    div.col.s12
+      span {note}
+
+  script.
+    this.del = function() {
+      var users = ref.child('links').child(this.id).child('users');
+      users.child(authData.uid).remove();
+
+      ref.child('users').child(authData.uid).child('links').child(this.id).remove();
+    };
+
+// # home
 home
   div.container
     h2 {user.name} だよー
     p {user.description}
-    button.btn(onclick='{hoge}') hoge
+    input(name='link', value='http://phiary.me')
+    button.btn(onclick='{onadd}') add
+    ul.collection.with-header
+      li.collection-item(each='{links}')
+        item
   script.
-    this.hoge = function() {
-      ref.child('links').push({
-        url: 'http://phiary.me',
+
+    var self = this;
+    this.links = [];
+
+    var userLinks = ref.child('users').child(authData.uid).child('links');
+
+    userLinks.on('value', function(snapshot) {
+      snapshot.forEach(function(link) {
+        ref.child('links').child(link.key()).on('value', function(linkSnapshot) {
+          var d = linkSnapshot.val();
+          d['id'] = linkSnapshot.key();
+          d['note'] = link.val().note;
+          d['timestamp'] = link.val().timestamp;
+          self.links.push(d);
+          riot.update();
+        });
+      });
+    }.bind(this));
+
+    this.onadd = function() {
+      var url = this.link.value;
+
+      getTitle(url, function(data) {
+        self.add(url, data.title);
+      });
+    };
+
+    this.add = function(url, title) {
+      var link = ref.child('links').push({
+        title: title,
+        url: url,
         uid: authData.uid,
+        timestamp: Date.now(),
+      });
+
+      link.child('users').child(authData.uid).set(true);
+
+      var userLinks = ref.child('users').child(authData.uid).child('links');
+      userLinks.child(link.key()).set({
+        note: '',
         timestamp: Date.now(),
       });
     };
 
-    // ref.child('links').orderByC
+// # user
+user
+  div.container
+    h2 {username} のページだよ
+    p {user.description}
 
-    // ref.
+    ul
+      li(each='{links}')
+        a(href='{url}', target='_blank') {url}
 
-    // ref.orderByChild("height").equalTo(25)
+  script.
+    var self = this;
+    this.links = [];
+    this.username = opts.path[0];
+
+    ref.child('users').orderByChild('name').equalTo(this.username).on('child_added', function(snapshot) {
+      self.user = snapshot.val();
+      self.update();
+
+      snapshot.child('links').forEach(function(link) {
+        ref.child('links').child(link.key()).on('value', function(snapshot) {
+          self.links.push(snapshot.val());
+          self.update();
+        });
+      });
+    });
+
+users
+  div.container
+    h2 users です!
+
+    ul
+      li(each='{users}')
+        a(href='\#{name}') {name}
+        | 
+        span {description}
+  script.
+
+    this.users = [];
+
+    ref.child('users').on('child_added', function(snapshot) {
+      this.users.push(snapshot.val());
+      this.update();
+    }.bind(this));
+
+
+links
+  div.container
+    h2 links です!
+
+    ul
+      li(each='{links}')
+        a(href='\#{url}') {url}
+        | 
+        span {description}
+  script.
+
+    this.links = [];
+
+    ref.child('links').on('child_added', function(snapshot) {
+      this.links.push(snapshot.val());
+      this.update();
+    }.bind(this));
 
 signup
   div.container
