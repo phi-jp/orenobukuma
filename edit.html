@@ -1,0 +1,40 @@
+<script src="https://cdn.firebase.com/js/client/2.3.2/firebase.js"></script>
+
+<script src='https://cdnjs.cloudflare.com/ajax/libs/jquery/2.2.0/jquery.js'></script>
+<script src='util.js'></script>
+
+<script>
+
+var run = function() {
+  var url = location.search.split('=')[1];
+  var ref = new Firebase("https://orenobukuma.firebaseio.com/");
+
+  ref.onAuth(function(authData) {
+    if (authData) {
+
+      getTitle(url, function(data) {
+        var link = ref.child('links').push({
+          title: data.title,
+          url: url,
+          uid: authData.uid,
+          timestamp: Date.now(),
+        });
+
+        link.child('users').child(authData.uid).set(true);
+
+        var userLinks = ref.child('users').child(authData.uid).child('links');
+        userLinks.child(link.key()).set({
+          note: 'from edit',
+          timestamp: Date.now(),
+        });
+      });
+    }
+    else {
+      console.log("User is logged out");
+    }
+  });
+};
+
+run();
+
+</script>

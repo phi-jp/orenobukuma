@@ -26,48 +26,7 @@
   </body>
 </html>
 
-<script>
-
-// 存在チェック
-if (String.prototype.format == undefined) {  
-  /**
-   * フォーマット関数
-   */
-  String.prototype.format = function(arg)
-  {
-    // 置換ファンク
-    var rep_fn = undefined;
-    // オブジェクトの場合
-    if (typeof arg == "object") {
-      rep_fn = function(m, k) { return arg[k]; }
-    }
-    // 複数引数だった場合
-    else {
-      var args = arguments;
-      rep_fn = function(m, k) { return args[ parseInt(k) ]; }
-    }
-    return this.replace( /\{(\w+)\}/g, rep_fn );
-  }
-}
-
-var getTitle = function(url, callback) {
-  var END_POINT = 'http://query.yahooapis.com/v1/public/yql';
-  
-  $.ajax({
-    type: 'GET',
-    url: END_POINT,
-    dataType: 'jsonp',
-    data: {
-      q: 'select * from html where url="{0}" and xpath = "//title | //meta[@name=\'description\']"'.format(url),
-      format: 'json'
-    },
-    success: function(data) {
-      callback && callback(data.query.results);
-    },
-  });
-};
-
-</script>
+<script src='util.js'></script>
 
 <script type="riot/tag" template='jade'>
 app
@@ -144,16 +103,17 @@ header
 
 // # link
 item
-  div.row
-    div.col.s12
-      a(href='{url}') {title} 
-      a.secondary-content(href='', onclick='{del}')
-        i.material-icons del
-  div.row
-    div.col.s12
-      span {note}
-
+  div.card
+    div.card-content
+      a.card-title.grey-text.text-darken-4(href='{url}') {title}
+      p {note}
+    div.card-action
+      button.btn(onclick='{del}') del
+      button.btn(onclick='{edit}') edit
   script.
+    this.edit = function() {
+
+    };
     this.del = function() {
       var users = ref.child('links').child(this.id).child('users');
       users.child(authData.uid).remove();
@@ -168,8 +128,8 @@ home
     p {user.description}
     input(name='link', value='http://phiary.me')
     button.btn(onclick='{onadd}') add
-    ul.collection.with-header
-      li.collection-item(each='{links}')
+    div.row
+      div.col.s12.m6.l4(each='{links}')
         item
   script.
 
