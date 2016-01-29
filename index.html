@@ -22,6 +22,12 @@
     <link rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/materialize/0.97.5/css/materialize.css' />
     <script src='https://cdnjs.cloudflare.com/ajax/libs/materialize/0.97.5/js/materialize.js'></script>
 
+    <style>
+    body {
+      background-color: hsl(0, 0%, 95%);
+    }
+    </style>
+
   </head>
   <body>
     <app></app>
@@ -105,34 +111,65 @@ header
 
 // # link
 item
-  div.card
-    div.card-image
-      // img(src='http://s.wordpress.com/mshots/v1/{url}?w=320')
-      img(src='http://capture.heartrails.com/320x240/delay=2?{url}')
+  div.z-depth-2.item
+    div.row
+      div.col.s4
+        div.image
+          img(src='http://s.wordpress.com/mshots/v1/{url}?w=320')
+        // img(src='http://capture.heartrails.com/320x240/delay=2?{url}')
 
-    div.card-content
-      a.card-title.grey-text.text-darken-4(href='{url}') {title}
-      p {note}
-    div.card-action
-      button.btn(onclick='{del}') del
-      button.btn(onclick='{edit}') edit
+      div.col.s8.content
+        div.main
+          a.title.grey-text.text-darken-4(href='{url}') {title}
+          p {note}
+        div.action.right-align
+          button.btn(onclick='{del}') del
+          button.btn(onclick='{edit}') edit
 
   style(scoped, type='less').
-    .card {
-      .card-image {
-        padding: 4px;
-        background-color: hsl(0, 0%, 37%);
-      }
-      .card-content {
-        .card-title {
-          white-space: nowrap;
-          // margin: 0px;
-          // padding: 0px;
-          line-height: 1;
-        }
-        height: 100px;
+
+    .item {
+      background-color: white;
+    }
+
+    .image {
+      // background-color: red;
+      img {
+        width: 100%;
       }
     }
+    .content {
+      position: relative;
+      height: 200px;
+      .main {
+        padding: 0.5rem;
+        .title {
+          font-size: 1.4rem;
+        }
+      }
+      .action {
+        position: absolute;
+        bottom: 0px;
+        width: 100%;
+        padding: 0.5rem;
+        padding-right: 2rem;
+      }
+    }
+    // .card {
+    //   .card-image {
+    //     padding: 4px;
+    //     background-color: hsl(0, 0%, 37%);
+    //   }
+    //   .card-content {
+    //     .card-title {
+    //       white-space: nowrap;
+    //       // margin: 0px;
+    //       // padding: 0px;
+    //       line-height: 1;
+    //     }
+    //     height: 100px;
+    //   }
+    // }
   script.
     this.edit = function() {
 
@@ -152,7 +189,7 @@ home
     input(name='link', value='http://phiary.me')
     button.btn(onclick='{onadd}') add
     div.row
-      div.col.s12.m6.l4(each='{links}')
+      div.col.s12(each='{links}')
         item
   script.
 
