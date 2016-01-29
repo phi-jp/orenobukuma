@@ -14,6 +14,8 @@
     <script src='https://cdnjs.cloudflare.com/ajax/libs/marked/0.3.5/marked.js'></script>
     <script src='http://cdnjs.cloudflare.com/ajax/libs/jade/1.11.0/jade.js'></script>
 
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/less.js/2.2.0/less.min.js"></script>
+
     <script src='https://cdnjs.cloudflare.com/ajax/libs/riot/2.3.13/riot+compiler.js'></script>
 
     <script src='https://cdnjs.cloudflare.com/ajax/libs/jquery/2.2.0/jquery.js'></script>
@@ -104,12 +106,33 @@ header
 // # link
 item
   div.card
+    div.card-image
+      // img(src='http://s.wordpress.com/mshots/v1/{url}?w=320')
+      img(src='http://capture.heartrails.com/320x240/delay=2?{url}')
+
     div.card-content
       a.card-title.grey-text.text-darken-4(href='{url}') {title}
       p {note}
     div.card-action
       button.btn(onclick='{del}') del
       button.btn(onclick='{edit}') edit
+
+  style(scoped, type='less').
+    .card {
+      .card-image {
+        padding: 4px;
+        background-color: hsl(0, 0%, 37%);
+      }
+      .card-content {
+        .card-title {
+          white-space: nowrap;
+          // margin: 0px;
+          // padding: 0px;
+          line-height: 1;
+        }
+        height: 100px;
+      }
+    }
   script.
     this.edit = function() {
 
