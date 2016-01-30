@@ -1,0 +1,18 @@
+// # links
+links
+  div.container
+    h2 links です!
+
+    div.row
+      div.col.s12(each='{links}')
+        item
+  script.
+
+    var self = this;
+    this.links = [];
+
+    db.users.links.index(authData.uid, function(d) {
+      this.links.push(d);
+      this.update();
+    }.bind(this));
+

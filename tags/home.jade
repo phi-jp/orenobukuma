@@ -1,0 +1,50 @@
+// # home
+home
+  div.container
+    h2 ホームだよー({user.name})
+    p {user.description}
+    input(name='link', value='http://phiary.me')
+    
+    div
+      button.btn(onclick='{onadd}') add
+
+    br
+
+    div.row
+      div.col.s12(each='{links}')
+        item
+  script.
+
+    var self = this;
+    this.links = [];
+
+    db.users.links.index(authData.uid, function(d) {
+      this.links.push(d);
+      this.update();
+    }.bind(this));
+
+    this.onadd = function() {
+      var url = this.link.value;
+
+      getTitle(url, function(data) {
+        self.add(url, data.title);
+      });
+    };
+
+    this.add = function(url, title) {
+      var link = ref.child('links').push({
+        title: title,
+        url: url,
+        uid: authData.uid,
+        timestamp: Date.now(),
+      });
+
+      link.child('users').child(authData.uid).set(true);
+
+      var userLinks = ref.child('users').child(authData.uid).child('links');
+      userLinks.child(link.key()).set({
+        note: '',
+        timestamp: Date.now(),
+      });
+    };
+

@@ -1,0 +1,17 @@
+users
+  div.container
+    h2 users です!
+
+    ul
+      li(each='{users}')
+        a(href='\#{name}') {name}
+        | 
+        span {description}
+  script.
+
+    this.users = [];
+
+    ref.child('users').on('child_added', function(snapshot) {
+      this.users.push(snapshot.val());
+      this.update();
+    }.bind(this));
