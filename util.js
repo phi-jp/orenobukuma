@@ -37,9 +37,18 @@ var getTitle = function(url, callback) {
   });
 };
 
+
+
+var ref = new Firebase("https://orenobukuma.firebaseio.com/");
+
 var db = {
   signup: function(email, password) {
-
+    // create user
+    // ref.child('users').child(authData.uid).set({
+    //   name: 'phi',
+    //   description: 'Hello, world!',
+    //   url: 'http://phairy.me',
+    // });
   },
 
   login: function(email, password) {
@@ -49,6 +58,12 @@ var db = {
   logout: function() {
     window.authData = null;
     ref.unauth();
+  },
+
+  isLogin: function(callback) {
+    ref.onAuth(function(authData) {
+      callback(authData);
+    });
   },
 
   users: {

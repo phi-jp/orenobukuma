@@ -14,9 +14,12 @@ item
           div(if='{!editing}')
             div.markdown(name='_markdown')
           div(if='{editing}')
-            textarea.materialize-textarea(name='_description', onblur='{this.save}') {note}
+            textarea.materialize-textarea(name='_description') {note}
         div.action.right-align
-          i.material-icons(onclick='{this.edit}') edit
+          div(if='{!editing}')
+            i.material-icons(onclick='{this.edit}') edit
+          div(if='{editing}')
+            i.material-icons(onclick='{this.save}') save
 
   style(scoped, type='less').
 
@@ -27,6 +30,7 @@ item
         height: auto;
         .image {
           border-right: 1px solid rgba(0, 0, 0, 0.1);
+          border-bottom: 1px solid rgba(0, 0, 0, 0.1);
           img {
             width: 100%;
           }
@@ -73,8 +77,10 @@ item
     this.edit = function() {
       this.editing = true;
       setTimeout(function() {
-        this._description.focus();
-      }.bind(this), 100);
+        this._description.select();
+        this._description.value = this._description.value;
+        //- this._description.focus();
+      }.bind(this));
     };
     this.save = function() {
       var linkRef = ref.child('users').child(authData.uid).child('links').child(this.id);
@@ -93,5 +99,7 @@ item
     };
 
     this.on('update', function() {
-      this._markdown.innerHTML = marked(this.note);
+      if (this.note) {
+        this._markdown.innerHTML = marked(this.note);
+      }
     });

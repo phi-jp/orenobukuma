@@ -63,8 +63,7 @@ riot.route.parser(function(path) {
   return [hashes, params];
 });
 
-var ref = new Firebase("https://orenobukuma.firebaseio.com/");
-ref.onAuth(function(authData) {
+db.isLogin(function(authData) {
   if (authData) {
     console.log("User " + authData.uid + " is logged in with " + authData.provider);
     window.authData = authData;
@@ -73,13 +72,6 @@ ref.onAuth(function(authData) {
       window.user = snapshot.val();
       var tags = riot.mount('*');
     });
-
-    // create user
-    // ref.child('users').child(authData.uid).set({
-    //   name: 'phi',
-    //   description: 'Hello, world!',
-    //   url: 'http://phairy.me',
-    // });
   }
   else {
     console.log("User is logged out");
