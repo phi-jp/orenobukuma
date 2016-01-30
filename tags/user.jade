@@ -1,0 +1,33 @@
+
+// # user
+user
+  div.container
+    h2 {username} のページだよ
+    p {user.description}
+
+    div.row
+      div.col.s12(each='{links}')
+        item
+
+  script.
+    var self = this;
+    this.links = [];
+    this.username = opts.path[0];
+
+    ref.child('users').orderByChild('name').equalTo(this.username).on('child_added', function(snapshot) {
+      self.user = snapshot.val();
+
+      db.users.links.index(snapshot.key(), function(d) {
+        self.links.push(d);
+        self.update();
+      });
+
+      //- self.update();
+
+      //- snapshot.child('links').forEach(function(link) {
+      //-   ref.child('links').child(link.key()).on('value', function(snapshot) {
+      //-     self.links.push(snapshot.val());
+      //-     self.update();
+      //-   });
+      //- });
+    });

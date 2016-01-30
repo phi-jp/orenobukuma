@@ -36,3 +36,49 @@ var getTitle = function(url, callback) {
     },
   });
 };
+
+var db = {
+  signup: function(email, password) {
+
+  },
+
+  login: function(email, password) {
+
+  },
+
+  logout: function() {
+    window.authData = null;
+    ref.unauth();
+  },
+
+  users: {
+    links: {
+      index: function(uid, callback) {
+        var links = ref.child('users').child(uid).child('links');
+
+        links.on('value', function(snapshot) {
+          console.log(snapshot.val());
+
+          snapshot.forEach(function(link) {
+            ref.child('links').child(link.key()).on('value', function(linkSnapshot) {
+              var d = linkSnapshot.val();
+              d['id'] = linkSnapshot.key();
+              d['note'] = link.val().note;
+              d['timestamp'] = link.val().timestamp;
+
+              callback(d);
+            });
+          });
+        });
+      },
+    }
+  },
+  links: {
+    get: function() {
+
+    },
+  },
+};
+
+
+
