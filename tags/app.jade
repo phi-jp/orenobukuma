@@ -1,0 +1,36 @@
+app
+  header
+  content
+  footer
+  
+  script.
+    this.on('mount', function() {
+      riot.route.start();
+
+      riot.route(function(path, query) {
+        var tag = path[0];
+
+        if (!tag) {
+          tag = 'home';
+        }
+
+        var pages = ['login', 'signup', 'users', 'home', 'links'];
+        if (pages.indexOf(tag) === -1) {
+          console.log(tag, 'to', 'user');
+          tag = 'user';
+        }
+
+        riot.mount('content', tag, {
+          path: path,
+          query: query,
+        });
+      });
+
+      var hash = location.hash.replace('#', '');
+      if (hash) {
+        riot.route.exec();
+      }
+      // riot.route(hash || 'home');
+    });
+
+    this.msg = 'Hello, Riot.js';

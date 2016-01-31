@@ -20,6 +20,8 @@ item
             i.material-icons(onclick='{this.edit}') edit
           div(if='{editing}')
             i.material-icons(onclick='{this.save}') save
+            i.material-icons(onclick='{this.save}') block
+
 
   style(scoped, type='less').
 
@@ -55,6 +57,9 @@ item
               }
             }
           }
+          textarea {
+            line-height: 1.2;
+          }
         }
         .action {
           cursor: pointer;
@@ -74,6 +79,7 @@ item
     }
   script.
     this.editing = false;
+
     this.edit = function() {
       this.editing = true;
       setTimeout(function() {

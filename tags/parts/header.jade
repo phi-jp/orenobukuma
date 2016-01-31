@@ -1,0 +1,37 @@
+header
+  nav.light-blue.lighten-1
+    div.row
+      div.col.s12
+        div.brand-logo
+          a(href='#home') オレのブクマ
+        ul.right(if='{!isLogin()}')
+          li
+            a(onclick='{login}') Login
+          li
+            a(onclick='{signup}') Signup
+        ul.right(if='{isLogin()}')
+          li
+            a(href='#users') Users
+          li
+            a(href='#links') Links
+          li
+            a(onclick='{logout}') Logout
+  script.
+    this.login = function() {
+      riot.route('login');
+    };
+    this.signup = function() {
+      riot.route('signup');
+    };
+    this.logout = function() {
+      riot.route('login');
+      db.logout();
+    };
+
+    this.isLogin = function() {
+      return !!window.authData;
+    };
+
+
+
+

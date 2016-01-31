@@ -42,17 +42,70 @@ var getTitle = function(url, callback) {
 var ref = new Firebase("https://orenobukuma.firebaseio.com/");
 
 var db = {
-  signup: function(email, password) {
-    // create user
-    // ref.child('users').child(authData.uid).set({
-    //   name: 'phi',
-    //   description: 'Hello, world!',
-    //   url: 'http://phairy.me',
-    // });
+  signup: function(email, password, callback) {
+    ref.createUser({
+      email: email,
+      password: password,
+    }, function(error, authData) {
+      if (error) {
+        switch (error.code) {
+          case 'EMAIL_TOKEN':
+            console.log("The new user account cannot be created because the email is already in use.");
+            break;
+          case 'INVALID_EMAIL' :
+            console.log("The specified email is not a valid email.");
+            break;
+          default :
+            console.log("Error creating user:", error);
+        }
+      }
+      else {
+        console.log("Successfully created user account with uid:", authData.uid);
+
+        // login
+        ref.authWithPassword({
+          email: email,
+          password: password,
+        }, function(error, authData) {
+          db.users.post(authData.uid, 'hoge', 'text text text text', callback(authData));
+        });
+      }
+    });
   },
 
   login: function(email, password) {
+    ref.authWithPassword({
+      email: this.email.value,
+      password: this.password.value,
+    }, function(error, authData) {
+      window.authData = authData;
+      riot.route('home');
+    });
+  },
 
+  twitterLogin: function(callback) {
+    ref.authWithOAuthPopup("twitter", function(error, authData) {
+      if (error) {
+        console.log("Login Failed!", error);
+      } else {
+        console.log("Authenticated successfully with payload:", authData);
+        window.authData = authData;
+
+        var userRef = ref.child('users').child(authData.uid).on('value', function(snapshot) {
+          if (snapshot.exists()) {
+            callback(authData);
+          }
+          else {
+            // create user
+            var name = authData.twitter.username;
+            var description = authData.twitter.cachedUserProfile.description;
+            db.users.post(authData.uid, name, description, function() {
+              callback(authData);
+            });
+          }
+        });
+      }
+    });
   },
 
   logout: function() {
@@ -67,6 +120,17 @@ var db = {
   },
 
   users: {
+    post: function(uid, name, description, callback) {
+      var userRef = ref.child('users').child(uid);
+
+      userRef.set({
+        name: name,
+        description: description,
+      }, callback || function() {
+        console.log('success');
+      });
+    },
+
     links: {
       index: function(uid, callback) {
         var links = ref.child('users').child(uid).child('links');
@@ -89,8 +153,8 @@ var db = {
     }
   },
   links: {
-    get: function() {
-
+    index: function() {
+      ref.child('links').on('added_child', callback);
     },
   },
 };

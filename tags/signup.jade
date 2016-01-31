@@ -1,0 +1,17 @@
+signup
+  div.container
+    form(onsubmit='{signup}')
+      h2 Signup
+      div
+        input(name='email', type='text', placeholder='email')
+      div
+        input(name='password', type='password', placeholder='password')
+      div.right
+        button.btn signup
+  script.
+    this.signup = function() {
+      db.signup(this.email.value, this.password.value, function(authData) {
+        window.authData = authData;
+        riot.route('home');
+      });
+    };

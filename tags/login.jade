@@ -1,0 +1,18 @@
+// login
+login
+  div.container
+    form(onsubmit='{login}')
+      h2 Login
+      div
+        input(name='email', type='text', placeholder='email')
+      div
+        input(name='password', type='password', placeholder='password')
+      div.right
+        button.btn login
+  script.
+    this.login = function() {
+      db.twitterLogin(function() {
+        riot.route('home');
+      });
+    };
+
