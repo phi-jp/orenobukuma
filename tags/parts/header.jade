@@ -7,8 +7,6 @@ header
         ul.right(if='{!isLogin()}')
           li
             a(onclick='{login}') Login
-          li
-            a(onclick='{signup}') Signup
         ul.right(if='{isLogin()}')
           li
             a(href='#users') Users
@@ -18,13 +16,12 @@ header
             a(onclick='{logout}') Logout
   script.
     this.login = function() {
-      riot.route('login');
-    };
-    this.signup = function() {
-      riot.route('signup');
+      db.twitterLogin(function() {
+        riot.route('home');
+      });
     };
     this.logout = function() {
-      riot.route('login');
+      riot.route('lp');
       db.logout();
     };
 

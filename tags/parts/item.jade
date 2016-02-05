@@ -15,6 +15,7 @@ item
             div.markdown(name='_markdown')
           div(if='{editing}')
             textarea.materialize-textarea(name='_description') {note}
+            div tags
         div.action.right-align
           div(if='{!editing}')
             i.material-icons(onclick='{this.edit}') edit
@@ -99,12 +100,16 @@ item
       this.editing = false;
     };
     this.del = function() {
+<<<<<<< Updated upstream
       if (!confirm('real.y?')) return ; 
 
       var users = ref.child('links').child(this.id).child('users');
       users.child(authData.uid).remove();
 
       ref.child('users').child(authData.uid).child('links').child(this.id).remove();
+=======
+      db.users.links.del(window.authData.uid, this.id);
+>>>>>>> Stashed changes
     };
 
     this.on('update', function() {

@@ -8,13 +8,19 @@ app
       riot.route.start();
 
       riot.route(function(path, query) {
-        var tag = path[0];
+        var tag = path[0] || '';
 
-        if (!tag) {
-          tag = 'home';
+        var loginedPages = [
+          '', 'home', 'user', 'users', 'links',
+        ];
+
+        // 未ログイン
+        if (!window.authData && loginedPages.indexOf(tag) !== -1) {
+          riot.route('lp');
+          return ;
         }
 
-        var pages = ['login', 'signup', 'users', 'home', 'links'];
+        var pages = ['lp', 'users', 'home', 'links'];
         if (pages.indexOf(tag) === -1) {
           console.log(tag, 'to', 'user');
           tag = 'user';
@@ -28,9 +34,18 @@ app
 
       var hash = location.hash.replace('#', '');
       if (hash) {
-        riot.route.exec();
+        riot.route(hash);
       }
-      // riot.route(hash || 'home');
+      else {
+        if (window.authData) {
+          riot.route('home');
+        }
+        else {
+          riot.route('lp');
+        }
+      }
+
+      riot.route.exec();
     });
 
     this.msg = 'Hello, Riot.js';

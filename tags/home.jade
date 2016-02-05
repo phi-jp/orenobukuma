@@ -32,19 +32,8 @@ home
     };
 
     this.add = function(url, title) {
-      var link = ref.child('links').push({
-        title: title,
-        url: url,
-        uid: authData.uid,
-        timestamp: Date.now(),
-      });
-
-      link.child('users').child(authData.uid).set(true);
-
-      var userLinks = ref.child('users').child(authData.uid).child('links');
-      userLinks.child(link.key()).set({
-        note: '',
-        timestamp: Date.now(),
+      db.users.links.post(window.authData.uid, url, title).then(function() {
+        console.log('success add link');
       });
     };
 

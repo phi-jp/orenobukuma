@@ -136,8 +136,6 @@ var db = {
         var links = ref.child('users').child(uid).child('links');
 
         links.on('value', function(snapshot) {
-          console.log(snapshot.val());
-
           snapshot.forEach(function(link) {
             ref.child('links').child(link.key()).on('value', function(linkSnapshot) {
               var d = linkSnapshot.val();
@@ -149,6 +147,33 @@ var db = {
             });
           });
         });
+      },
+      post: function(uid, url, title) {
+        var linksRef = ref.child('links');
+        var userLinksRef = ref.child('users').child(uid).child('links');
+
+        return new Promise(function(resolve, reject) {
+          var link = linksRef.push({
+            title: title,
+            url: url,
+            uid: uid,
+            timestamp: Date.now(),
+          });
+
+          link.child('users').child(uid).set(true);
+
+          userLinksRef.child(link.key()).set({
+            note: 'new memo',
+            timestamp: Date.now(),
+          }, function() {
+            resolve();
+          });
+        });
+      },
+      del: function(uid, linkId) {
+        var users = ref.child('links').child(linkId).child('users');
+        users.child(authData.uid).remove();
+        ref.child('users').child(uid).child('links').child(linkId).remove();
       },
     }
   },
