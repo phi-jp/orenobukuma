@@ -2,15 +2,15 @@
 item
   div.z-depth-2.item
     div.row
-      div.col.s4.side
+      div.col.s12.m4.side
         div.image
           a(href='{url}', target='_blank')
             // img(src='http://s.wordpress.com/mshots/v1/{url}?w=320')
             img(src='http://capture.heartrails.com/320x240/delay=2?{url}')
 
-      div.col.s8.content
+      div.col.s12.m8.content
         div.main
-          a.title.grey-text.text-darken-4(href='{url}') {title}
+          a.title(href='{url}', target='_blank') {title}
           div(if='{!editing}')
             div.markdown(name='_markdown')
           div(if='{editing}')
@@ -20,7 +20,7 @@ item
             i.material-icons(onclick='{this.edit}') edit
           div(if='{editing}')
             i.material-icons(onclick='{this.save}') save
-            i.material-icons(onclick='{this.save}') block
+            i.material-icons(onclick='{this.del}') block
 
 
   style(scoped, type='less').
@@ -42,10 +42,10 @@ item
       .content {
         position: relative;
         .main {
-          padding-top: 1rem;
-          padding-right: 1rem;
+          padding: 0.5rem;
           .title {
-            font-size: 1.4rem;
+            color: hsl(200, 100%, 60%);
+            font-size: 1.2rem;
           }
 
           .markdown {
