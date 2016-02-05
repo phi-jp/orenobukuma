@@ -18,6 +18,7 @@ item
         div.action.right-align
           div(if='{!editing}')
             i.material-icons(onclick='{this.edit}') edit
+            i.material-icons(onclick='{this.edit}') more_vert
           div(if='{editing}')
             i.material-icons(onclick='{this.save}') save
             i.material-icons(onclick='{this.del}') block
@@ -98,6 +99,8 @@ item
       this.editing = false;
     };
     this.del = function() {
+      if (!confirm('real.y?')) return ; 
+
       var users = ref.child('links').child(this.id).child('users');
       users.child(authData.uid).remove();
 
