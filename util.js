@@ -135,9 +135,9 @@ var db = {
       index: function(uid, callback) {
         var links = ref.child('users').child(uid).child('links');
 
-        links.on('value', function(snapshot) {
+        links.once('value', function(snapshot) {
           snapshot.forEach(function(link) {
-            ref.child('links').child(link.key()).on('value', function(linkSnapshot) {
+            ref.child('links').child(link.key()).once('value', function(linkSnapshot) {
               var d = linkSnapshot.val();
               d['id'] = linkSnapshot.key();
               d['note'] = link.val().note;
@@ -179,7 +179,7 @@ var db = {
   },
   links: {
     index: function() {
-      ref.child('links').on('added_child', callback);
+      ref.child('links').once('added_child', callback);
     },
   },
 };

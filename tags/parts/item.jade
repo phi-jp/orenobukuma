@@ -100,16 +100,9 @@ item
       this.editing = false;
     };
     this.del = function() {
-<<<<<<< Updated upstream
       if (!confirm('real.y?')) return ; 
 
-      var users = ref.child('links').child(this.id).child('users');
-      users.child(authData.uid).remove();
-
-      ref.child('users').child(authData.uid).child('links').child(this.id).remove();
-=======
       db.users.links.del(window.authData.uid, this.id);
->>>>>>> Stashed changes
     };
 
     this.on('update', function() {

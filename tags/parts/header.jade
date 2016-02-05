@@ -1,5 +1,5 @@
 header
-  nav.light-blue.lighten-1
+  nav.blue.darken-4
     div.row
       div.col.s12
         div.brand-logo
@@ -9,9 +9,7 @@ header
             a(onclick='{login}') Login
         ul.right(if='{isLogin()}')
           li
-            a(href='#users') Users
-          li
-            a(href='#links') Links
+            a(href='{"#" + user.name}') {user.name}
           li
             a(onclick='{logout}') Logout
   script.
