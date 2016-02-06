@@ -134,20 +134,32 @@ var db = {
     links: {
       index: function(uid, callback) {
         var links = ref.child('users').child(uid).child('links');
+        var ps = [];
 
         links.once('value', function(snapshot) {
           snapshot.forEach(function(link) {
-            ref.child('links').child(link.key()).once('value', function(linkSnapshot) {
-              var d = linkSnapshot.val();
-              d['id'] = linkSnapshot.key();
-              d['note'] = link.val().note;
-              d['timestamp'] = link.val().timestamp;
-              d['tags'] = ['web', 'javascript'];
+            var p = new Promise(function(resolve) {
+              ref.child('links').child(link.key()).once('value', function(linkSnapshot) {
+                var d = linkSnapshot.val();
+                d['id'] = linkSnapshot.key();
+                d['note'] = link.val().note;
+                d['timestamp'] = link.val().timestamp;
+                d['tags'] = [
+                  {name:'web'},
+                  {name:'javascript'},
+                ];
 
-              callback(d);
+                resolve(d);
+              });
             });
+            ps.push(p);
+          });
+
+          Promise.all(ps).then(function(res) {
+            callback(res);
           });
         });
+
       },
       post: function(uid, url, title) {
         var linksRef = ref.child('links');

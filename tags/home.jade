@@ -18,8 +18,8 @@ home
     var self = this;
     this.links = [];
 
-    db.users.links.index(authData.uid, function(d) {
-      this.links.push(d);
+    db.users.links.index(authData.uid, function(res) {
+      this.links = res;
       this.update();
     }.bind(this));
 

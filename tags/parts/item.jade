@@ -14,7 +14,7 @@ item
             a(href='{link.url}', target='_blank') {link.title}
           div(if='{!editing}')
             div.chips
-              chip(each='{this.link.tags}')
+              chip(each='{tag in this.link.tags}', value='{tag}')
             div.markdown(name='_markdown')
           div(if='{editing}')
             div.chips

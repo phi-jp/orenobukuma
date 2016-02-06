@@ -1,5 +1,5 @@
 chip._chip(style='background-color:{color}')
-  | {this._item}
+  | {this.value.name}
   i.material-icons(if='{opts.edit}', onclick='{opts.ondel}') close
 
   style(type='less').
@@ -29,14 +29,12 @@ chip._chip(style='background-color:{color}')
     }
 
   script.
+    this.value = opts.value;
+
     this.on('update', function() {
-      if (this._item) {
-        var charCode = this._item.charCodeAt(0);
+      if (this.value) {
+        var charCode = this.value.name.charCodeAt(0);
         var angle = (charCode*10-250)%360;
         this.color = 'hsl(' + angle + ', 80%, 60%)';
       }
-    });
-
-    this.on('mount', function() {
-
     });
