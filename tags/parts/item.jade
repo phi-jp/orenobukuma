@@ -4,25 +4,30 @@ item
     div.row
       div.col.s12.m4.side
         div.image
-          a(href='{url}', target='_blank')
-            // img(src='http://s.wordpress.com/mshots/v1/{url}?w=320')
-            img(src='http://capture.heartrails.com/320x240/delay=2?{url}')
+          a(href='{link.url}', target='_blank')
+            // img(src='http://s.wordpress.com/mshots/v1/{link.url}?w=320')
+            img(src='http://capture.heartrails.com/320x240/delay=2?{link.url}')
 
       div.col.s12.m8.content
         div.main
-          a.title(href='{url}', target='_blank') {title}
+          div.title
+            a(href='{link.url}', target='_blank') {link.title}
           div(if='{!editing}')
+            div.chips
+              chip(each='{this.link.tags}')
             div.markdown(name='_markdown')
           div(if='{editing}')
-            textarea.materialize-textarea(name='_description') {note}
-            div tags
+            div.chips
+              form(onsubmit='{addChip}')
+                chip(each='{this.link.tags}', edit='true', ondel='{this.delChip}')
+                input(name='_inputChip')
+            textarea.materialize-textarea(name='_note') {link.note}
         div.action.right-align
           div(if='{!editing}')
             i.material-icons(onclick='{this.edit}') edit
-            i.material-icons(onclick='{this.edit}') more_vert
+            i.material-icons(onclick='{this.del}') more_vert
           div(if='{editing}')
             i.material-icons(onclick='{this.save}') save
-            i.material-icons(onclick='{this.del}') block
 
 
   style(scoped, type='less').
@@ -45,9 +50,20 @@ item
         position: relative;
         .main {
           padding: 0.5rem;
+
           .title {
-            color: hsl(200, 100%, 60%);
+            width: calc(~'100% - 42px');
+            margin-bottom: 0.5rem;
             font-size: 1.2rem;
+            line-height: 1.2;
+            color: hsl(200, 100%, 60%);
+          }
+
+          .chips {
+            input {
+              width: auto;
+              height: 2rem;
+            }
           }
 
           .markdown {
@@ -80,33 +96,50 @@ item
       }
     }
   script.
+    this.link = opts.link;
     this.editing = false;
 
     this.edit = function() {
       this.editing = true;
       setTimeout(function() {
-        this._description.select();
-        this._description.value = this._description.value;
-        //- this._description.focus();
+        this._note.select();
+        this._note.value = this._note.value;
+        //- this._note.focus();
       }.bind(this));
     };
     this.save = function() {
-      var linkRef = ref.child('users').child(authData.uid).child('links').child(this.id);
+      var linkRef = ref.child('users').child(authData.uid).child('links').child(this.link.id);
 
       linkRef.update({
-        note: this._description.value,
+        note: this._note.value,
       });
+
+      this.link.note = this._note.value;
 
       this.editing = false;
     };
     this.del = function() {
-      if (!confirm('real.y?')) return ; 
+      if (!confirm('really?')) return ; 
 
-      db.users.links.del(window.authData.uid, this.id);
+      db.users.links.del(window.authData.uid, this.link.id);
     };
 
-    this.on('update', function() {
-      if (this.note) {
-        this._markdown.innerHTML = marked(this.note);
+    this.addChip = function() {
+      this.chips.push(this._inputChip.value);
+      this._inputChip.value = '';
+      this.update();
+    };
+
+    this.delChip = function(e) {
+      var i = this.chips.indexOf(e.item);
+      this.chips.splice(i, 1);
+      this.update();
+    };
+
+    this.on('updated', function() {
+      if (this.link.note) {
+        this._markdown.innerHTML = marked(this.link.note, {
+          breaks: true,
+        });
       }
     });

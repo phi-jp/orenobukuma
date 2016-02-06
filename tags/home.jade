@@ -11,8 +11,8 @@ home
     br
 
     div.row
-      div.col.s12(each='{links}')
-        item
+      div.col.s12(each='{link in links}')
+        item(link='{link}')
   script.
 
     var self = this;

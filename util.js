@@ -142,6 +142,7 @@ var db = {
               d['id'] = linkSnapshot.key();
               d['note'] = link.val().note;
               d['timestamp'] = link.val().timestamp;
+              d['tags'] = ['web', 'javascript'];
 
               callback(d);
             });
